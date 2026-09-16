@@ -45,6 +45,27 @@ iface eth3 inet static
 
 
 #### 3. Setelah router Lain terhubung ke internet, pastikan seluruh Entitas (Client) di bawah Switch 1, Switch 2, dan Switch 3 dapat saling terhubung dan berkomunikasi satu sama lain melalui konfigurasi routing.
+Dengan configure router:
+```
+eth1 (Subnet Alice & Mika): 10.78.1.1
+eth2 (Subnet Chisa): 10.78.2.1
+eth3 (Subnet Knights & Eiri): 10.78.3.1
+```
+```
+IP Alice: 10.78.1.2, Gateway 10.78.1.1
+IP Mika:  10.78.1.3, Gateway 10.78.1.1
+IP Chisa: 10.78.2.2 Gateway 10.78.2.1
+IP Knights: 10.78.3.2 Gateway 10.78.3.1
+IP Eiri: 10.78.3.3 Gateway 10.78.3.1
+```
+Jalankan perintah: ``` ping -c 2 10.78.x.x ``` untuk mengecek apakah client satu sama ain sudah dapat terhubung. 
+
+Berikut melalui client1 (Alice) dengan menjalankan perintah: ``` ping -c 2 10.78.3.2 ``` (Knights) 
+
+<img src="resources/soal3.png">
+
+
+#### 4. Lain ingin agar setiap Entitas (Client) memiliki kemandirian di The Wired. Konfigurasikan firewall/iptables (NAT Masquerade) dan DNS resolver agar setiap Client dapat terhubung ke internet secara mandiri (dapat melakukan ping ke 8.8.8.8 dan membuka domain web google.com).
 ```
 sysctl -w net.ipv4.ip_forward=1
 ```
@@ -55,8 +76,6 @@ iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT
 iptables -A FORWARD -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 ```
-
-#### 4. Lain ingin agar setiap Entitas (Client) memiliki kemandirian di The Wired. Konfigurasikan firewall/iptables (NAT Masquerade) dan DNS resolver agar setiap Client dapat terhubung ke internet secara mandiri (dapat melakukan ping ke 8.8.8.8 dan membuka domain web google.com).
 
 #### 5. Eiri tetap berupaya menanamkan kekacauan ke dalam jaringan. Untuk mengantisipasi restart tiba-tiba, pastikan seluruh konfigurasi jaringan tidak hilang saat semua node di-restart. Buat script verifikasi di /root/cek_status.sh pada router Lain yang menampilkan ringkasan interface (ip -br a) dan status tabel NAT (iptables -t nat -L -v -n) setelah reboot.
 
