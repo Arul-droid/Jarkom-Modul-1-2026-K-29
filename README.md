@@ -6,13 +6,55 @@ Batas antara Dunia Nyata dan The Wired perlahan mulai runtuh setelah kepergian C
 Di tengah kekacauan ini, Lain Iwakura menyadari eksistensi sejatinya sebagai entitas pengendali The Wired. Untuk menjaga stabilitas komunikasi serta melindungi sahabatnya Alice Mizuki dan kakaknya Mika Iwakura dari campur tangan Eiri, Lain bertindak sebagai Router untuk membangun sendiri arsitektur jaringan The Wired yang aman.
 ```
 #### 1. Untuk mempersiapkan pembangunan The Wired, Lain yang berperan sebagai Router membuat tiga Switch/Gateway: Switch 1 menuju dua Entitas yaitu Alice dan Mika, Switch 2 menuju Chisa, sedangkan Switch 3 menuju Knights dan Eiri. Kelima Entitas tersebut dikonfigurasi sebagai Client di GNS3.
-blablabla
+
+<img src="resources/soal1.png">
 
 ---
 
 #### 2. Karena menurut Lain pada saat itu The Wired masih terisolasi dari dunia luar, konfigurasikan router Lain agar dapat tersambung langsung ke jaringan internet publik melalui NAT/DHCP pada interface eth0.
+Konfigurasi router agar tersambung langsung ke jaringan internet publik:
+```
+# Jalur Internet (menuju NAT1)
+auto eth0
+iface eth0 inet dhcp
+    up sysctl -w net.ipv4.ip_forward=1
+    up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+```
+
+```
+# Jalur ke Subnet-1 (Alice & Mika)
+auto eth1
+iface eth1 inet static
+    address 10.78.1.1
+    netmask 255.255.255.0
+```
+```
+# Jalur ke Subnet-2 (Chisa)
+auto eth2
+iface eth2 inet static
+    address 10.78.2.1
+    netmask 255.255.255.0
+```
+```
+# Jalur ke Subnet-3 (Knights & Eiri)
+auto eth3
+iface eth3 inet static
+    address 10.78.3.1
+    netmask 255.255.255.0
+```
+
 
 #### 3. Setelah router Lain terhubung ke internet, pastikan seluruh Entitas (Client) di bawah Switch 1, Switch 2, dan Switch 3 dapat saling terhubung dan berkomunikasi satu sama lain melalui konfigurasi routing.
+```
+sysctl -w net.ipv4.ip_forward=1
+```
+```
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+```
 
 #### 4. Lain ingin agar setiap Entitas (Client) memiliki kemandirian di The Wired. Konfigurasikan firewall/iptables (NAT Masquerade) dan DNS resolver agar setiap Client dapat terhubung ke internet secara mandiri (dapat melakukan ping ke 8.8.8.8 dan membuka domain web google.com).
 
