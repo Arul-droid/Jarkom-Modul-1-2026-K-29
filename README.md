@@ -74,14 +74,85 @@ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
 iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT
 iptables -A FORWARD -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
-
 ```
 
+
 #### 5. Eiri tetap berupaya menanamkan kekacauan ke dalam jaringan. Untuk mengantisipasi restart tiba-tiba, pastikan seluruh konfigurasi jaringan tidak hilang saat semua node di-restart. Buat script verifikasi di /root/cek_status.sh pada router Lain yang menampilkan ringkasan interface (ip -br a) dan status tabel NAT (iptables -t nat -L -v -n) setelah reboot.
+Membuat shell script cek_status.sh dengan shell code:
+```
+echo "=================================================="
+echo "1. STATUS INTERFACE & IP ADDRESS (ip -br a)"
+echo "=================================================="
+ip -br a
+
+echo ""
+echo "=================================================="
+echo "2. STATUS RULE IPTABLES NAT (iptables -t nat -L -v -n)"
+echo "=================================================="
+iptables -t nat -L -v -n
+echo "=================================================="
+```
+
+<img src="resources/soal5.png">
+
+Seluruh konfigurasi interface (eth0, eth1, eth2, eth3) dan NAT Masquerade pada eth0 berhasil tersimpan secara permanen di router Lain dan otomatis dimuat ulang saat reboot.
+
+Script /root/cek_status.sh berhasil mengeksekusi pemeriksaan jaringan dengan menampilkan ringkasan IP address per interface serta rule tabel NAT iptables secara lengkap dan valid.
 
 #### 6. Mika mencurigai adanya anomali traffic pada segmen jaringannya. Jalankan generator traffic berikut (link file) pada node Mika, lalu lakukan packet sniffing menggunakan Wireshark pada interface node Mika. Terapkan display filter khusus untuk menyaring paket yang berprotokol DNS atau ICMP. Tunjukkan screenshot hasil filter beserta ringkasan paket yang lolos.
+Dokumentasi hasil filter besertakan ringkasan paket yang lolos:
+<img src="resources/soal64.png">
+<img src="resources/soal6dns.png">
+<img src="resources/soal6icmp.png">
+
 
 #### 7. Chisa memutuskan mendirikan FTP Server pada node miliknya dengan shared folder di /var/wired/data. Terapkan kebijakan akses: user alice (hak akses read & write), user mika (dibatasi read-only), dan user eiri (dibatasi tanpa izin akses / blacklist). Buktikan konfigurasi dengan membuat file signal_alice.txt dari user alice, dan buktikan penolakan akses saat user eiri mencoba login.
+
+```
+apt update && apt install -y vsftpd nano 
+nano /etc/vsftpd.conf 
+sftpd start atau /usr/sbin/vsftpd & 
+```
+```
+mkdir -p /var/wired/data
+chmod 777 /var/wired/data
+
+useradd -m -s /bin/bash alice
+useradd -m -s /bin/bash mika
+useradd -m -s /bin/bash eiri
+
+echo "alice:123" | chpasswd
+echo "mika:123" | chpasswd
+echo "eiri:123" | chpasswd
+
+cat /etc/passwd | grep -E "alice|mika|eiri" 
+
+nano /etc/vsftpd.conf
+
+Pastikan baris-baris berikut tidak memiliki tanda pagar (#) dan nilainya sesuai (tambahkan di baris paling bawah jika tidak ada): 
+listen=YES
+listen_ipv6=NO
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+local_root=/var/wired/data
+
+# Konfigurasi Blacklist & Hak Akses Spesifik
+userlist_enable=YES
+userlist_deny=YES
+userlist_file=/etc/vsftpd.userlist
+user_config_dir=/etc/vsftpd_user_conf
+
+echo "eiri" > /etc/vsftpd.userlist
+
+cat /etc/vsftpd.userlist 
+
+mkdir -p /etc/vsftpd_user_conf
+echo "write_enable=NO" > /etc/vsftpd_user_conf/mika
+
+cat /etc/vsftpd_user_conf/mika 
+
+```
 
 #### 8. Kelompok rahasia Knights perlu mengirimkan dokumen laporan intelijen ke FTP Server Chisa. Lakukan koneksi FTP client dari node Knights ke FTP Server Chisa menggunakan akun alice. Upload file berikut (link file). Analisis sesi Wireshark dan sebutkan: perintah FTP untuk upload (STOR), kode status sukses server (226), dan port data TCP yang dinegosiasikan pada mode PASV.
 
