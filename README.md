@@ -297,10 +297,22 @@ nc 10.4.89.247 3401
 
 ---
 
-#### 16.  
+#### 16.  Eiri meletakkan file malware di server. Dari file capture wired_ftp_theft.pcap, lakukan analisis lalu lintas FTP untuk mengidentifikasi alamat IP server FTP penyerang, banner software FTP yang digunakan, kredensial login penyerang, serta ukuran (size in bytes) dari file malware knights_payload.exe yang diunduh. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3403 
 
+<img src="resources/16ip.png">
+<img src="resources/16banner.png">
+<img src="resources/16usn.png">
+<img src="resources/16pw.png">
+<img src="resources/16rs.png">
+<img src="resources/16nc.png">
 
-#### 17.  
+#### 17.  Alice membuat halaman web di node-nya. Eiri memanfaatkan celah untuk mengunduh payload berbahaya ke sistem Alice. Analisis file capture wired_http_c2.pcap untuk mengidentifikasi nama domain (Host) tempat malware diunduh, alamat IP server penyerang, nama file executable malware yang diunduh, serta kode status HTTP yang dikembalikan. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3404
+
+<img src="resources/17ip.png">
+<img src="resources/17r.png">
+<img src="resources/17status.png">
+<img src="resources/17rs.png">
+
 #### 18.  
 #### 19. 
 #### 20. 
