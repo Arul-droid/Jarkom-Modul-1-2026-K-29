@@ -128,8 +128,9 @@ echo "eiri:123" | chpasswd
 cat /etc/passwd | grep -E "alice|mika|eiri" 
 
 nano /etc/vsftpd.conf
-
-Pastikan baris-baris berikut tidak memiliki tanda pagar (#) dan nilainya sesuai (tambahkan di baris paling bawah jika tidak ada): 
+```
+Pastikan baris-baris berikut tidak memiliki tanda pagar (#) dan nilainya sesuai (tambahkan di baris paling bawah jika tidak ada):
+``` 
 listen=YES
 listen_ipv6=NO
 anonymous_enable=NO
@@ -151,10 +152,93 @@ mkdir -p /etc/vsftpd_user_conf
 echo "write_enable=NO" > /etc/vsftpd_user_conf/mika
 
 cat /etc/vsftpd_user_conf/mika 
-
 ```
+```
+apt -o Acquire::ForceIPv4=true install -y ftp
+killall vsftpd
+/usr/sbin/vsftpd &
+```
+<img src="resources/71.png">
+
+
+1. User eiri (dibatasi tanpa izin akses / blacklist) buktikan penolakan akses saat user eiri mencoba login.
+   <img src="resources/72.png">
+2. User alice (hak akses read & write) Buktikan konfigurasi dengan membuat file signal_alice.txt dari user alice.
+   <img src="resources/73.png">
+3. Pembuktian mika read only
+   <img src="resources/74.png">
+
 
 #### 8. Kelompok rahasia Knights perlu mengirimkan dokumen laporan intelijen ke FTP Server Chisa. Lakukan koneksi FTP client dari node Knights ke FTP Server Chisa menggunakan akun alice. Upload file berikut (link file). Analisis sesi Wireshark dan sebutkan: perintah FTP untuk upload (STOR), kode status sukses server (226), dan port data TCP yang dinegosiasikan pada mode PASV.
+
+Pada node Knights
+```
+Touch knights_report.txt
+
+==================================================
+  KNIGHTS OF THE EASTERN CALCULUS — STATUS REPORT
+  Protocol 7 Surveillance Network
+  Classification: LEVEL 7 — EYES ONLY
+==================================================
+
+Date: [CLASSIFIED]
+Agent: Knights Unit Alpha
+Node: Switch 3 — Subnet 10.<PREFIX>.3.0/24
+
+---
+
+SUBJECT: Network Reconnaissance Report
+
+The Wired has been successfully infiltrated through
+Protocol 7 channels. Current observations:
+
+1. Router "Lain" has been identified as the central
+   gateway node connecting all three subnet segments.
+
+2. Switch 1 (10.<PREFIX>.1.0/24) hosts Alice and Mika.
+   Both nodes show standard traffic patterns.
+
+3. Switch 2 (10.<PREFIX>.2.0/24) hosts Chisa alone.
+   Isolated subnet — minimal cross-traffic observed.
+
+4. Switch 3 (10.<PREFIX>.3.0/24) — our operational base.
+   Knights and Eiri coexist on this segment.
+
+RECOMMENDATION:
+Continue monitoring FTP and Telnet sessions for
+plaintext credential exposure. SSH tunnels remain
+impenetrable without keylog access.
+
+--- END OF REPORT ---
+Knights of the Eastern Calculus
+"Let's all love Lain."
+```
+
+<img src="resources/8a.png">
+
+```
+ftp 10.78.2.2 
+passive 
+put knights_report.txt
+quit 
+```
+
+<img src="resources/8b.png">
+<img src="resources/8c.png">
+
+    1. Port Data TCP yang Dinegosiasikan (Mode EPSV)
+        Bukti di Wireshark: Paket No. 51.
+        Analisis: Karena klien menggunakan Extended Passive Mode (EPSV), peladen merespons dengan kode 229 Entering Extended Passive Mode (|||10092|). Angka di dalam kurung tersebut menunjukkan bahwa port data dinamis yang dinegosiasikan dan dibuka oleh peladen untuk jalur masuk data adalah TCP Port 10092. (Catatan: Port ini terbukti berada di dalam rentang 10000-10100 yang telah kita konfigurasi sebelumnya).
+
+    2. Perintah FTP untuk Upload (STOR)
+        Bukti di Wireshark: Paket No. 55.
+        Analisis: Setelah jalur data (Port 10092) terbentuk melalui proses TCP Handshake (Paket 52-54), klien Knights mengirimkan perintah STOR knights_report.txt melalui jalur kontrol (Port 21). Perintah ini menginstruksikan peladen Chisa untuk bersiap menerima aliran data yang akan disimpan dengan nama fail tersebut.
+
+    3. Kode Status Sukses Server (226)
+        Bukti di Wireshark: Paket No. 62.
+        Analisis: Setelah transfer data fail selesai dilakukan (Paket No. 57) dan jalur data 10092 ditutup (klien dan peladen saling mengirim paket FIN/ACK pada Paket 58-61), peladen Chisa mengirimkan konfirmasi final berupa kode 226 Transfer complete melalui jalur kontrol (Port 21). Ini membuktikan bahwa fail intelijen telah utuh diterima dan proses upload selesai dengan sempurna.
+
+
 
 #### 9. 
 #### 10.  
