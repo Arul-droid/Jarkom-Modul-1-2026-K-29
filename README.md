@@ -42,7 +42,7 @@ iface eth3 inet static
     address 10.78.3.1
     netmask 255.255.255.0
 ```
-
+---
 
 #### 3. Setelah router Lain terhubung ke internet, pastikan seluruh Entitas (Client) di bawah Switch 1, Switch 2, dan Switch 3 dapat saling terhubung dan berkomunikasi satu sama lain melalui konfigurasi routing.
 Dengan configure router:
@@ -76,6 +76,8 @@ iptables -A FORWARD -i eth2 -o eth0 -j ACCEPT
 iptables -A FORWARD -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
 ```
 
+---
+
 
 #### 5. Eiri tetap berupaya menanamkan kekacauan ke dalam jaringan. Untuk mengantisipasi restart tiba-tiba, pastikan seluruh konfigurasi jaringan tidak hilang saat semua node di-restart. Buat script verifikasi di /root/cek_status.sh pada router Lain yang menampilkan ringkasan interface (ip -br a) dan status tabel NAT (iptables -t nat -L -v -n) setelah reboot.
 Membuat shell script cek_status.sh dengan shell code:
@@ -99,12 +101,15 @@ Seluruh konfigurasi interface (eth0, eth1, eth2, eth3) dan NAT Masquerade pada e
 
 Script /root/cek_status.sh berhasil mengeksekusi pemeriksaan jaringan dengan menampilkan ringkasan IP address per interface serta rule tabel NAT iptables secara lengkap dan valid.
 
+---
+
 #### 6. Mika mencurigai adanya anomali traffic pada segmen jaringannya. Jalankan generator traffic berikut (link file) pada node Mika, lalu lakukan packet sniffing menggunakan Wireshark pada interface node Mika. Terapkan display filter khusus untuk menyaring paket yang berprotokol DNS atau ICMP. Tunjukkan screenshot hasil filter beserta ringkasan paket yang lolos.
 Dokumentasi hasil filter besertakan ringkasan paket yang lolos:
 <img src="resources/soal64.png">
 <img src="resources/soal6dns.png">
 <img src="resources/soal6icmp.png">
 
+---
 
 #### 7. Chisa memutuskan mendirikan FTP Server pada node miliknya dengan shared folder di /var/wired/data. Terapkan kebijakan akses: user alice (hak akses read & write), user mika (dibatasi read-only), dan user eiri (dibatasi tanpa izin akses / blacklist). Buktikan konfigurasi dengan membuat file signal_alice.txt dari user alice, dan buktikan penolakan akses saat user eiri mencoba login.
 
@@ -238,16 +243,63 @@ quit
         Bukti di Wireshark: Paket No. 62.
         Analisis: Setelah transfer data fail selesai dilakukan (Paket No. 57) dan jalur data 10092 ditutup (klien dan peladen saling mengirim paket FIN/ACK pada Paket 58-61), peladen Chisa mengirimkan konfirmasi final berupa kode 226 Transfer complete melalui jalur kontrol (Port 21). Ini membuktikan bahwa fail intelijen telah utuh diterima dan proses upload selesai dengan sempurna.
 
-
+---
 
 #### 9. 
 #### 10.  
 #### 11.  
 #### 12.  
 #### 13.  
-#### 14.  
-#### 15.  
+#### 14.  Setelah gagal mengakses FTP, Eiri melancarkan serangan brute-force terhadap form login web Alice. Analisis file capture wired_bruteforce.pcapng untuk mengidentifikasi alamat IP penyerang, target IP beserta port yang diserang, password user lain_admin yang berhasil ditembus, serta web server software dan versi yang dilaporkan pada response header. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3401 
+
+---
+
+<img src="resources/14well.png">
+Didapatkan:
+
+```
+IP Penyerang: 172.26.7.50
+IP Tujuan: 172.26.7.100
+```
+Setelah pasangkan response 200 dengan requestnya (http.response.code == 200), didapatkan:
+
+<img src="resources/14hasil.png">
+
+```
+Port yang diserang: 8080
+Username berhasil: lain_admin
+Password berhasil: wired_pr0tocol_7
+Web server & versi: Apache/2.4.62
+```
+jalankan:
+```
+nc 10.4.89.247 3401
+```
+<img src="resources/14nc.png">
+
+---
+
+#### 15.  Eiri menyusup ke ruang server dan memasang perangkat keyboard USB berbahaya pada node Alice. Buka file capture wired_usb_hid.pcap, identifikasi Vendor ID dan Product ID perangkat USB dari deskriptor USB, alamat nomor device USB, serta pesan rahasia yang berhasil dicuri dari keystroke. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3402 
+
+1. Mengecek gambaran umum capture
+    <img src="resources/15a.png">
+2. Mencari Device Descriptor untuk mengambil id vendor dan id product
+    <img src="resources/15id.png">
+3. Mencari Device Address
+    <img src="resources/15addr.png">
+    0 berartikan dipakai sementara sebelum address di-assign, saat descriptor dibaca dan 7 berartikan address final yang dipakai device ini untuk semua transfer HID.
+4. Decode semua keycode menjadi sebuah karakter.
+    <img src="resources/15decode.png">
+    Hasilnya adalah: Wired_Protocol_7_is_alive_2026
+
+5. Result. 
+    <img src="resources/15result.png">
+
+---
+
 #### 16.  
+
+
 #### 17.  
 #### 18.  
 #### 19. 
