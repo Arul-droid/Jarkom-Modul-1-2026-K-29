@@ -289,6 +289,7 @@ EOF
 
 cat /var/wired/data/protocol7_manifesto.txt
 ```
+<img src="resources/soal9_manifesto_touch.png">
 <img src="resources/soal9_manifesto.png">
 
 Lakukan pengujian *read-only* dari node Mika:
@@ -310,6 +311,8 @@ ping -c 77 -s 128 -i 0.3 10.78.2.2
 ```
 <img src="resources/soal10_ping_terminal.png">
 <img src="resources/soal10_wireshark.png">
+<img src="resources/soal10_wireshark_request.png">
+<img src="resources/soal10_wireshark_reply.png">
 
 **1. Analisis Nilai ICMP (Type dan Code)**
 Berdasarkan tangkapan lalu lintas paket menggunakan Wireshark, protokol ICMP bekerja dengan format balasan sebagai berikut:
@@ -347,6 +350,7 @@ Masuk dengan akun `phantom_user` dan sandi `wired_ghost`.
 
 <img src="resources/soal11_telnet_terminal.png">
 <img src="resources/soal11_wireshark_stream.png">
+<img src="resources/soal11_wireshark_stream_followtcp.png">
 
 **1. Bukti Eksekusi Login Telnet**
 Berdasarkan tangkapan layar terminal *node* Eiri, koneksi Telnet menuju peladen Chisa (`10.78.2.2`) telah berhasil dilakukan. Klien sukses melakukan *login* menggunakan *username* `phantom_user` dan *password* `wired_ghost`, yang ditandai dengan munculnya *banner* sistem "DebiNet - Lightweight Debian-based Networking Toolbox".
