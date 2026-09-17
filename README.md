@@ -5,7 +5,7 @@
 Batas antara Dunia Nyata dan The Wired perlahan mulai runtuh setelah kepergian Chisa Yomoda, yang meninggalkan pesan bahwa dirinya tetap hidup di dalam The Wired. Di balik kekacauan ini berdiri Masami Eiri, mantan perancang Protokol 7 di Laboratorium Tachibana, yang setelah kematian fisiknya berhasil mengunggah kesadarannya ke jaringan dan mendeklarasikan diri sebagai penguasa The Wired, didukung kelompok peretas Knights of the Eastern Calculus.
 Di tengah kekacauan ini, Lain Iwakura menyadari eksistensi sejatinya sebagai entitas pengendali The Wired. Untuk menjaga stabilitas komunikasi serta melindungi sahabatnya Alice Mizuki dan kakaknya Mika Iwakura dari campur tangan Eiri, Lain bertindak sebagai Router untuk membangun sendiri arsitektur jaringan The Wired yang aman.
 ```
-#### 1. Untuk mempersiapkan pembangunan The Wired, Lain yang berperan sebagai Router membuat tiga Switch/Gateway: Switch 1 menuju dua Entitas yaitu Alice dan Mika, Switch 2 menuju Chisa, sedangkan Switch 3 menuju Knights dan Eiri. Kelima Entitas tersebut dikonfigurasi sebagai Client di GNS3.
+#### 1. Untuk mempersiapkan pembangunan The Wired, Lain yang berperan sebagai Router membuat tiga Switch/Gateway: Switch 1 menuju dua Entitas yaitu Alice dan Mika, Switch 2 menuju Chisa, sedangkan Switch 3 menuju Knights dan Eiri. Kelima Entitas tersebut dikonfigurasi sebagai Client di GNS3. [GUNAKAN PREFIX IP MASING-MASING KELOMPOK]
 
 <img src="resources/soal1.png">
 
@@ -245,7 +245,7 @@ quit
 
 ---
 
-#### 9. Lain menginstruksikan pembuatan manifesto keamanan di peladen Chisa. Buat file `protocol7_manifesto.txt` dan uji coba hak akses klien Mika.
+#### 9. Mika mengakses dokumen Protokol Tujuh di (link file) dari FTP Server Chisa. Dari node Mika, unduh file tersebut menggunakan akun mika. Setelah itu, buktikan pembatasan read-only dengan mencoba mengunggah file baru dari akun mika, dan tunjukkan pesan error respon server (error 550 Permission denied) saat mika mencoba melakukan upload.
 Di node Chisa, buat file manifesto menggunakan perintah berikut:
 ```bash
 cat << 'EOF' > /var/wired/data/protocol7_manifesto.txt
@@ -304,7 +304,7 @@ put tes_mika.txt
 
 ---
 
-#### 10. Knights melancarkan uji ketahanan koneksi ke server Chisa. Lakukan ping dan analisis packet loss serta RTT.
+#### 10. Knights melancarkan uji ketahanan koneksi ke server Chisa untuk menguji latensi jaringan The Wired. Kirimkan paket ping dari node Knights ke node Chisa dengan payload khusus 128 bytes dan interval 0.3 detik sebanyak 77 paket (ping -c 77 -s 128 -i 0.3 <IP_Chisa>). Buka Wireshark, catat nilai ICMP Type dan Code untuk Echo Request vs Echo Reply, serta analisis packet loss dan RTT (min/avg/max).
 Di terminal node Knights:
 ```bash
 ping -c 77 -s 128 -i 0.3 10.78.2.2
@@ -332,7 +332,7 @@ Berdasarkan statistik akhir pada terminal Knights, latensi jaringan dari 77 pake
 
 ---
 
-#### 11. Buktikan kelemahan protokol Telnet dengan membuat akun phantom_user pada node Chisa dan lakukan login dari Eiri.
+#### 11. Buktikan kelemahan protokol Telnet dengan membuat akun phantom_user dan password wired_ghost pada layanan telnetd di node Chisa. Lakukan login Telnet dari node Eiri ke node Chisa dan tangkap sesi menggunakan Wireshark. Tunjukkan kredensial plain text melalui fitur Follow TCP Stream, serta jelaskan mengapa setiap karakter terkirim dalam paket TCP terpisah.
 Di node Chisa:
 ```bash
 apt -o Acquire::ForceIPv4=true install -y telnetd
@@ -367,7 +367,7 @@ Pada tangkapan layar daftar paket Wireshark (kolom *Info*), terlihat banyak seka
 
 ---
 
-#### 12. Lakukan pemindaian port dari node Alice ke node Knights menggunakan Netcat untuk memeriksa port 22 (SSH), 80 (HTTP), dan 7777 (Tertutup).
+#### 12. Alice mencurigai Knights menjalankan beberapa layanan rahasia di node-nya. Lakukan pemindaian port dari node Alice ke node Knights menggunakan Netcat (nc) untuk memeriksa port 22 (SSH) dan 80 (HTTP) dalam keadaan terbuka, serta port rahasia 7777 dalam keadaan tertutup. Analisis di Wireshark perbedaan TCP Flag yang dikembalikan antara port terbuka (SYN-ACK) dengan port tertutup (RST-ACK).
 Di node Knights:
 ```bash
 /etc/init.d/ssh start
@@ -397,7 +397,7 @@ Berdasarkan tangkapan lalu lintas jaringan menggunakan Wireshark, protokol TCP m
 
 ---
 
-#### 13. Konfigurasi remote access SSH secara aman tanpa password (Public Key Authentication) dari Mika ke Knights.
+#### 13. Lain memerintahkan agar administrasi jarak jauh menggunakan SSH secara aman tanpa password. Install OpenSSH server pada node Knights, buat pasangan kunci SSH (ssh-keygen) pada node Mika untuk user mika_admin, dan konfigurasikan public key authentication (PasswordAuthentication no). Lakukan koneksi SSH dari node Mika ke node Knights, tangkap sesi menggunakan Wireshark, identifikasi paket Protocol Version Exchange dan Key Exchange, serta jelaskan mengapa kredensial tidak terlihat dalam bentuk teks terbuka seperti pada Telnet.
 Di node Knights:
 ```bash
 useradd -m -s /bin/bash mika_admin 
@@ -511,7 +511,8 @@ nc 10.4.89.247 3401
 <img src="resources/17status.png">
 <img src="resources/17rs.png">
 
-#### 18.  
+#### 18.  Eiri mengubah taktik penyerangan dengan menanamkan file malware menggunakan protokol file sharing SMB. Analisis file capture wired_smb_transfer.pcapng untuk mengidentifikasi nama protokol jaringan yang dieksploitasi, IP pengirim dan penerima, folder tujuan penyimpanan malware pada sistem korban, serta nama file executable malware yang ditransfer. Validasi temuan kalian pada socket server:(link file) nc [IP_Group] 3405
+
 
 <img src="resources/18cek.png">
 <img src="resources/18ip.png">
@@ -519,7 +520,8 @@ nc 10.4.89.247 3401
 <img src="resources/18c.png">
 <img src="resources/18hasil.png">
 
-#### 19. 
+#### 19. Eiri meneror jaringan dengan mengirimkan email pemerasan melalui protokol SMTP tanpa enkripsi. Analisis file capture wired_smtp_threat.pcap pada stream TCP terkait, identifikasi alamat email korban yang ditargetkan, password korban yang diklaim bocor oleh penyerang, jenis malware yang diinfeksikan, batas waktu (dalam hari) yang diberikan, serta MailClientID yang tercantum pada pesan. Validasi temuan kalian pada socket server:(link file) nc [IP_Group] 3406
+
 
 <img src="resources/19a.png">
 <img src="resources/19b.png">
@@ -528,7 +530,7 @@ nc 10.4.89.247 3401
 <img src="resources/19e.png">
 <img src="resources/19.png">
 
-#### 20. 
+#### 20. Untuk rencana pamungkasnya, Eiri menyembunyikan komunikasi malware di balik saluran terenkripsi TLS. Namun Alice telah menyediakan file keylog untuk mendekripsi lalu lintas data tersebut. Analisis file capture wired_tls_decrypt.pcapng bersama keyslogfile.txt untuk mengidentifikasi versi protokol TLS yang dinegosiasikan, nama domain (SNI) yang diakses, alamat IP server HTTPS penyerang, User-Agent yang digunakan, serta HTTP request method dan path yang tersembunyi di dalam sesi dekripsi. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3407
 
 <img src="resources/20a.png">
 <img src="resources/20b.png">
