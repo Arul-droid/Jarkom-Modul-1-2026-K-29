@@ -281,18 +281,18 @@ nc 10.4.89.247 3401
 
 #### 15.  Eiri menyusup ke ruang server dan memasang perangkat keyboard USB berbahaya pada node Alice. Buka file capture wired_usb_hid.pcap, identifikasi Vendor ID dan Product ID perangkat USB dari deskriptor USB, alamat nomor device USB, serta pesan rahasia yang berhasil dicuri dari keystroke. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3402 
 
-1. Mengecek gambaran umum capture
+1. Mengecek gambaran umum capture <br>
     <img src="resources/15a.png">
-2. Mencari Device Descriptor untuk mengambil id vendor dan id product
+2. Mencari Device Descriptor untuk mengambil id vendor dan id product <br>
     <img src="resources/15id.png">
 3. Mencari Device Address
-    <img src="resources/15addr.png">
+    <br>
+    <img src="resources/15addr.png"> 
     0 berartikan dipakai sementara sebelum address di-assign, saat descriptor dibaca dan 7 berartikan address final yang dipakai device ini untuk semua transfer HID.
-4. Decode semua keycode menjadi sebuah karakter.
-    <img src="resources/15decode.png">
+4. Decode semua keycode menjadi sebuah karakter. <br>
+    <img src="resources/15decode.png"> 
     Hasilnya adalah: Wired_Protocol_7_is_alive_2026
-
-5. Result. 
+5. Result. <br>
     <img src="resources/15result.png">
 
 ---
@@ -314,5 +314,7 @@ nc 10.4.89.247 3401
 <img src="resources/17rs.png">
 
 #### 18.  
+
+
 #### 19. 
 #### 20. 
