@@ -513,6 +513,26 @@ nc 10.4.89.247 3401
 
 #### 18.  
 
+<img src="resources/18cek.png">
+<img src="resources/18ip.png">
+<img src="resources/18pola.png">
+<img src="resources/18c.png">
+<img src="resources/18hasil.png">
 
 #### 19. 
+
+<img src="resources/19a.png">
+<img src="resources/19b.png">
+<img src="resources/19c.png">
+<img src="resources/19d.png">
+<img src="resources/19e.png">
+<img src="resources/19.png">
+
 #### 20. 
+
+<img src="resources/20a.png">
+<img src="resources/20b.png">
+
+
+
+
