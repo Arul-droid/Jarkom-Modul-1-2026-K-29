@@ -245,11 +245,205 @@ quit
 
 ---
 
-#### 9. 
-#### 10.  
-#### 11.  
-#### 12.  
-#### 13.  
+#### 9. Lain menginstruksikan pembuatan manifesto keamanan di peladen Chisa. Buat file `protocol7_manifesto.txt` dan uji coba hak akses klien Mika.
+Di node Chisa, buat file manifesto menggunakan perintah berikut:
+```bash
+cat << 'EOF' > /var/wired/data/protocol7_manifesto.txt
+==================================================
+PROTOCOL 7 — THE MANIFESTO
+A Declaration of Digital Consciousness
+Serial Experiments Lain — Year 2026
+==================================================
+ARTICLE I: THE NATURE OF THE WIRED
+-----------------------------------
+The Wired is not merely a network of interconnected machines.
+It is the collective unconscious of humanity, rendered in packets and protocols.
+Every TCP handshake is a conversation. Every DNS query is a question.
+Every encrypted tunnel is a whispered secret.
+
+ARTICLE II: THE SEVEN PRINCIPLES
+----------------------------------
+1. All nodes are equal in the eyes of the router.
+2. No packet shall be dropped without cause.
+3. Encryption is the right of every connection.
+4. Plaintext protocols expose the vulnerable.
+5. The firewall protects, but also imprisons.
+6. NAT masquerade hides truth behind a single face.
+7. The Wired remembers everything — packet loss is merely a temporary forgetting.
+
+ARTICLE III: THE PROPHECY OF LAIN
+-----------------------------------
+"If you're not remembered, then you never existed."
+In the world of networking, persistence is survival.
+A configuration that vanishes upon restart is a thought that was never truly committed to memory.
+Therefore: Save your iptables. Write your interfaces. Let your routing tables endure beyond the power cycle.
+
+ARTICLE IV: CONCERNING SECURITY
+---------------------------------
+Telnet is the glass house of protocols — transparent to any observer with a packet sniffer.
+SSH is the steel vault — its contents visible only to those who possess the key.
+Choose wisely which door you open to The Wired.
+---
+"No matter where you go, everyone's connected." — Lain Iwakura
+EOF
+
+cat /var/wired/data/protocol7_manifesto.txt
+```
+<img src="resources/soal9_manifesto.png">
+
+Lakukan pengujian *read-only* dari node Mika:
+```bash
+echo "Ini file dummy untuk tes error 550" > tes_mika.txt
+ftp 10.78.2.2
+passive
+get protocol7_manifesto.txt
+put tes_mika.txt
+```
+<img src="resources/soal9_mika_ftp.png">
+
+---
+
+#### 10. Knights melancarkan uji ketahanan koneksi ke server Chisa. Lakukan ping dan analisis packet loss serta RTT.
+Di terminal node Knights:
+```bash
+ping -c 77 -s 128 -i 0.3 10.78.2.2
+```
+<img src="resources/soal10_ping_terminal.png">
+<img src="resources/soal10_wireshark.png">
+
+**1. Analisis Nilai ICMP (Type dan Code)**
+Berdasarkan tangkapan lalu lintas paket menggunakan Wireshark, protokol ICMP bekerja dengan format balasan sebagai berikut:
+- **Echo Request:** Paket permintaan yang dikirimkan oleh Knights menuju Chisa menggunakan nilai **Type 8** dan **Code 0**.
+- **Echo Reply:** Paket balasan yang dikembalikan oleh server Chisa menuju Knights menggunakan nilai **Type 0** dan **Code 0**.
+
+**2. Analisis Packet Loss**
+Berdasarkan hasil pengujian, terbukti terjadi **packet loss** pada lalu lintas "The Wired".
+- **Bukti Wireshark:** Pada tangkapan layar Wireshark (Paket No. 123), terlihat bahwa Knights mengirimkan permintaan ke-63 (*seq=63/16128*), namun paket tersebut mendapatkan keterangan **(no response found!)**.
+- **Pembahasan:** Hal ini membuktikan bahwa paket tersebut ter-*drop* atau hilang di tengah jalan (kemungkinan besar pada antrean *router* NAT). Pengiriman paket yang masif dan cepat (interval 0,3 detik) menyebabkan *bottleneck* atau kelebihan beban sesaat, sehingga ada paket yang gagal diproses atau gagal dikembalikan.
+
+**3. Analisis RTT (Round-Trip Time)**
+Berdasarkan statistik akhir pada terminal Knights, latensi jaringan dari 77 paket tersebut menunjukkan nilai RTT sebagai berikut:
+- **Minimum (min):** *0.400 ms* (Waktu tercepat paket membalas).
+- **Average (avg):** *0.584 ms* (Rata-rata latensi koneksi selama pengujian).
+- **Maximum (max):** *1.497 ms* (Waktu paling lambat, biasanya terjadi pada awal koneksi saat proses pencarian rute atau saat terjadi antrean padat).
+
+---
+
+#### 11. Buktikan kelemahan protokol Telnet dengan membuat akun phantom_user pada node Chisa dan lakukan login dari Eiri.
+Di node Chisa:
+```bash
+apt -o Acquire::ForceIPv4=true install -y telnetd
+useradd -m -s /bin/bash phantom_user
+echo "phantom_user:wired_ghost" | chpasswd
+```
+
+Di node Eiri:
+```bash
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+apt -o Acquire::ForceIPv4=true update && apt -o Acquire::ForceIPv4=true install -y telnet
+telnet 10.78.2.2 
+```
+Masuk dengan akun `phantom_user` dan sandi `wired_ghost`.
+
+<img src="resources/soal11_telnet_terminal.png">
+<img src="resources/soal11_wireshark_stream.png">
+
+**1. Bukti Eksekusi Login Telnet**
+Berdasarkan tangkapan layar terminal *node* Eiri, koneksi Telnet menuju peladen Chisa (`10.78.2.2`) telah berhasil dilakukan. Klien sukses melakukan *login* menggunakan *username* `phantom_user` dan *password* `wired_ghost`, yang ditandai dengan munculnya *banner* sistem "DebiNet - Lightweight Debian-based Networking Toolbox".
+
+**2. Bukti Kredensial *Plain Text* (Analisis Follow TCP Stream)**
+Melalui pengamatan lalu lintas jaringan menggunakan fitur **Follow TCP Stream** di Wireshark, terbukti bahwa Telnet adalah protokol yang sangat rentan (sesuai dengan Manifesto "The Wired" yang menyebutnya sebagai *glass house*).
+- **Analisis Bukti:** Pada jendela *Follow TCP Stream*, seluruh komunikasi dapat dibaca dengan jelas dalam bentuk *plain text* (teks biasa) tanpa adanya enkripsi sama sekali.
+- **Keterangan Warna:** Teks berwarna **merah** adalah data yang dikirimkan oleh klien (Eiri), sedangkan teks berwarna **biru** adalah respons/*echo* yang dikembalikan oleh peladen (Chisa). Oleh karena itu, siapa pun yang menyadap jaringan ini dapat dengan mudah melihat kata sandi `wired_ghost` yang diketikkan oleh pengguna.
+
+**3. Analisis Pengiriman Paket Karakter Terpisah**
+Pada tangkapan layar daftar paket Wireshark (kolom *Info*), terlihat banyak sekali paket berprotokol TELNET yang hanya membawa **1 byte data**. Selain itu, pada *Follow TCP Stream*, input klien terlihat ganda/diulang (seperti `p p h h a a n n`).
+- **Alasan (Pembahasan):** Hal ini terjadi karena Telnet beroperasi menggunakan **Mode Karakter (*Character-at-a-time mode*)**. Dalam mode ini, protokol tidak menunggu pengguna selesai mengetik satu kata utuh atau menekan *Enter*.
+- Setiap kali pengguna menekan **satu tombol huruf** di *keyboard* (misal: tombol 'p'), huruf tersebut (1 *byte*) akan langsung dikemas ke dalam satu paket TCP terpisah dan dikirimkan ke peladen. Peladen kemudian akan merespons dengan mengirimkan kembali huruf 'p' tersebut (paket *echo*) agar bisa divisualisasikan/muncul di layar terminal klien. Mekanisme inilah yang membuat setiap karakter terkirim terpisah dan menghasilkan huruf ganda pada *stream* Wireshark.
+
+---
+
+#### 12. Lakukan pemindaian port dari node Alice ke node Knights menggunakan Netcat untuk memeriksa port 22 (SSH), 80 (HTTP), dan 7777 (Tertutup).
+Di node Knights:
+```bash
+/etc/init.d/ssh start
+/etc/init.d/apache2 start
+```
+
+Di node Alice:
+```bash
+nc -zv 10.78.3.2 22 80 7777
+```
+<img src="resources/soal12_nc.png">
+
+Filter Wireshark:
+```text
+tcp.port in {22, 80, 7777}
+```
+<img src="resources/soal12_wireshark.png">
+
+**1. Analisis Port Terbuka (Port 22 dan 80)**
+Berdasarkan tangkapan lalu lintas jaringan menggunakan Wireshark, protokol TCP memberikan respons yang berbeda tergantung pada status *port* tujuan:
+- **Bukti:** Saat Alice mengirimkan paket inisiasi koneksi `[SYN]`, *node* Knights membalasnya dengan paket yang memiliki bendera **`[SYN, ACK]`** (terlihat pada Paket No. 2 untuk SSH dan Paket No. 6 untuk HTTP).
+- **Pembahasan:** Paket `[SYN, ACK]` (*Synchronize-Acknowledge*) adalah bentuk persetujuan dalam mekanisme *TCP Three-Way Handshake*. Bendera ini membuktikan bahwa *port* tujuan dalam keadaan terbuka (aktif) dan layanan di baliknya siap menerima koneksi dari klien.
+
+**2. Analisis Port Tertutup (Port 7777)**
+- **Bukti:** Saat Alice mencoba mengirimkan paket `[SYN]` ke *port* 7777, *node* Knights seketika mengembalikan paket balasan dengan bendera **`[RST, ACK]`** (terlihat pada Paket No. 11 berwarna merah).
+- **Pembahasan:** Paket `[RST, ACK]` (*Reset-Acknowledge*) merupakan mekanisme penolakan aktif dari sistem operasi. Karena tidak ada layanan atau aplikasi yang sedang berjalan/mendengarkan di *port* 7777, sistem Knights secara otomatis menolak dan memutus koneksi tersebut secara paksa, yang kemudian diterjemahkan oleh Netcat sebagai *Connection refused*.
+
+---
+
+#### 13. Konfigurasi remote access SSH secara aman tanpa password (Public Key Authentication) dari Mika ke Knights.
+Di node Knights:
+```bash
+useradd -m -s /bin/bash mika_admin 
+passwd mika_admin 
+```
+*(Masukkan Password: rahasia123)*
+<img src="resources/soal13_useradd.png">
+
+Di node Mika:
+```bash
+useradd -m -s /bin/bash mika_admin
+su - mika_admin
+ssh-keygen -t rsa -b 2048
+```
+<img src="resources/soal13_keygen.png">
+
+Di node Knights, edit file konfigurasi SSH:
+```bash
+nano /etc/ssh/sshd_config
+```
+Cari baris `#PasswordAuthentication yes` (atau tanpa tanda #), ubah menjadi: 
+```text
+PasswordAuthentication no
+```
+<img src="resources/soal13_sshd_config.png">
+
+Jalankan perintah berikut di Knights:
+```bash
+/etc/init.d/ssh restart
+```
+
+Kembali ke node Mika, lakukan login:
+```bash
+ssh mika_admin@10.78.3.2
+```
+<img src="resources/soal13_ssh_login.png">
+<img src="resources/soal13_wireshark_ssh.png">
+
+**1. Identifikasi *Protocol Version Exchange***
+- **Temuan (Paket No. 4 & No. 6):** Pada awal transaksi, klien dan peladen mengirimkan paket dengan informasi `Protocol (SSH-2.0-OpenSSH_10.0p2...)`.
+- **Pembahasan:** Ini adalah fase pertukaran versi protokol (*Protocol Version Exchange*). Pada tahap ini, Mika dan Knights saling bertukar informasi mengenai versi perangkat lunak SSH yang mereka gunakan dalam bentuk *plain text*. Tujuannya adalah untuk memastikan kompabilitas algoritma antara klien dan peladen sebelum sesi enkripsi dimulai.
+
+**2. Identifikasi *Key Exchange***
+- **Temuan (Paket No. 9 & No. 11):** Setelah pertukaran versi, muncul paket dengan keterangan `Key Exchange Init`.
+- **Pembahasan:** Ini adalah fase negosiasi kunci kriptografi. Pada tahap ini, kedua belah pihak berdiskusi secara aman untuk menyepakati metode enkripsi dan bertukar parameter guna membentuk sebuah *Shared Secret Key* (kunci rahasia bersama) menggunakan algoritma seperti Diffie-Hellman, tanpa harus mengirimkan kunci utamanya melalui jaringan.
+
+**3. Mengapa Kredensial Tidak Terlihat (Perbandingan dengan Telnet)**
+Berbeda dengan Telnet yang merupakan protokol *glass house* (seluruh data dikirim dalam bentuk teks terbuka), kredensial pada koneksi SSH ini sama sekali tidak dapat disadap (*sniffing*) karena dua alasan utama:
+- **Enkripsi Sesi Penuh:** Setelah fase *Key Exchange* selesai (terlihat mulai dari Paket No. 13 dan seterusnya), seluruh paket komunikasi dikunci menggunakan algoritma enkripsi simetris. Wireshark tidak lagi bisa membaca isi *payload*, dan hanya menampilkannya sebagai `Encrypted packet`.
+- **Autentikasi Kunci Publik (Tanpa Kata Sandi):** Karena peladen Knights telah dikonfigurasi dengan `PasswordAuthentication no` dan menggunakan autentikasi `ssh-keygen`, klien (Mika) tidak pernah mengirimkan kata sandi melewati jaringan. Proses masuk divalidasi menggunakan kecocokan matematis antara *Private Key* rahasia milik Mika dengan *Public Key* yang sudah dititipkan di Knights.
 #### 14.  Setelah gagal mengakses FTP, Eiri melancarkan serangan brute-force terhadap form login web Alice. Analisis file capture wired_bruteforce.pcapng untuk mengidentifikasi alamat IP penyerang, target IP beserta port yang diserang, password user lain_admin yang berhasil ditembus, serta web server software dan versi yang dilaporkan pada response header. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3401 
 
 ---
