@@ -448,33 +448,26 @@ ssh mika_admin@10.78.3.2
 Berbeda dengan Telnet yang merupakan protokol *glass house* (seluruh data dikirim dalam bentuk teks terbuka), kredensial pada koneksi SSH ini sama sekali tidak dapat disadap (*sniffing*) karena dua alasan utama:
 - **Enkripsi Sesi Penuh:** Setelah fase *Key Exchange* selesai (terlihat mulai dari Paket No. 13 dan seterusnya), seluruh paket komunikasi dikunci menggunakan algoritma enkripsi simetris. Wireshark tidak lagi bisa membaca isi *payload*, dan hanya menampilkannya sebagai `Encrypted packet`.
 - **Autentikasi Kunci Publik (Tanpa Kata Sandi):** Karena peladen Knights telah dikonfigurasi dengan `PasswordAuthentication no` dan menggunakan autentikasi `ssh-keygen`, klien (Mika) tidak pernah mengirimkan kata sandi melewati jaringan. Proses masuk divalidasi menggunakan kecocokan matematis antara *Private Key* rahasia milik Mika dengan *Public Key* yang sudah dititipkan di Knights.
+
+
 #### 14.  Setelah gagal mengakses FTP, Eiri melancarkan serangan brute-force terhadap form login web Alice. Analisis file capture wired_bruteforce.pcapng untuk mengidentifikasi alamat IP penyerang, target IP beserta port yang diserang, password user lain_admin yang berhasil ditembus, serta web server software dan versi yang dilaporkan pada response header. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3401 
 
----
+1. Gambaran umum traffic
+    <img src="resources/14a.png">
+2. Identifikasi IP penyerang
+    <img src="resources/14b.png">   
+3. Ip dan Port target
+    <img src="resources/14c.png">
+4. Ekstrak isi percobaan login
+    <img src="resources/14d.png">
+5. Bedakan percobaan gagal vs berhasil
+    <img src="resources/14e.png">
+6. Pasangkan response 200 dengan request-nya
+    <img src="resources/14f.png">
+7. Ambil informasi web server dari response header
+    <img src="resources/14g.png">
 
-<img src="resources/14well.png">
-Didapatkan:
-
-```
-IP Penyerang: 172.26.7.50
-IP Tujuan: 172.26.7.100
-```
-Setelah pasangkan response 200 dengan requestnya (http.response.code == 200), didapatkan:
-
-<img src="resources/14hasil.png">
-
-```
-Port yang diserang: 8080
-Username berhasil: lain_admin
-Password berhasil: wired_pr0tocol_7
-Web server & versi: Apache/2.4.62
-```
-jalankan:
-```
-nc 10.4.89.247 3401
-```
-<img src="resources/14nc.png">
-
+    <img src="resources/14nc.png">
 ---
 
 #### 15.  Eiri menyusup ke ruang server dan memasang perangkat keyboard USB berbahaya pada node Alice. Buka file capture wired_usb_hid.pcap, identifikasi Vendor ID dan Product ID perangkat USB dari deskriptor USB, alamat nomor device USB, serta pesan rahasia yang berhasil dicuri dari keystroke. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3402 
@@ -497,41 +490,72 @@ nc 10.4.89.247 3401
 
 #### 16.  Eiri meletakkan file malware di server. Dari file capture wired_ftp_theft.pcap, lakukan analisis lalu lintas FTP untuk mengidentifikasi alamat IP server FTP penyerang, banner software FTP yang digunakan, kredensial login penyerang, serta ukuran (size in bytes) dari file malware knights_payload.exe yang diunduh. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3403 
 
+1. Gambaran Umum capture
 <img src="resources/16ip.png">
+
+2. Analisis lalu lintas FTP untuk mengidentifikasi alamat IP server FTP penyerang
 <img src="resources/16banner.png">
+
+3. Ambil kredensial login
 <img src="resources/16usn.png">
 <img src="resources/16pw.png">
+
+4. Konfirmasi urutan lengkap serangan
 <img src="resources/16rs.png">
 <img src="resources/16nc.png">
 
 #### 17.  Alice membuat halaman web di node-nya. Eiri memanfaatkan celah untuk mengunduh payload berbahaya ke sistem Alice. Analisis file capture wired_http_c2.pcap untuk mengidentifikasi nama domain (Host) tempat malware diunduh, alamat IP server penyerang, nama file executable malware yang diunduh, serta kode status HTTP yang dikembalikan. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3404
 
-<img src="resources/17ip.png">
-<img src="resources/17r.png">
-<img src="resources/17status.png">
+1. Gambaran umum
+<img src="resources/17a.png">
+
+2. Cari semua DNS
+<img src="resources/17b.png">
+3. Cari semua HTTP request
+<img src="resources/17c.png">
+4. Konfirmasi IP tujuan request tersebut
+<img src="resources/17d.png">
+5. Pastikan nama file dan Host
+<img src="resources/17e.png">
+6. Ambil kode status
+<img src="resources/17f.png">
 <img src="resources/17rs.png">
+
 
 #### 18.  Eiri mengubah taktik penyerangan dengan menanamkan file malware menggunakan protokol file sharing SMB. Analisis file capture wired_smb_transfer.pcapng untuk mengidentifikasi nama protokol jaringan yang dieksploitasi, IP pengirim dan penerima, folder tujuan penyimpanan malware pada sistem korban, serta nama file executable malware yang ditransfer. Validasi temuan kalian pada socket server:(link file) nc [IP_Group] 3405
 
-
+1. Gambaran umum
 <img src="resources/18cek.png">
+2. Identifikasi IP
 <img src="resources/18ip.png">
+3. Urutan SMB2 untuk memahami alur serangan
 <img src="resources/18pola.png">
+4. Cari path file lengkap
 <img src="resources/18c.png">
 <img src="resources/18hasil.png">
 
 #### 19. Eiri meneror jaringan dengan mengirimkan email pemerasan melalui protokol SMTP tanpa enkripsi. Analisis file capture wired_smtp_threat.pcap pada stream TCP terkait, identifikasi alamat email korban yang ditargetkan, password korban yang diklaim bocor oleh penyerang, jenis malware yang diinfeksikan, batas waktu (dalam hari) yang diberikan, serta MailClientID yang tercantum pada pesan. Validasi temuan kalian pada socket server:(link file) nc [IP_Group] 3406
 
-
+1. Gambaran umum file capture
 <img src="resources/19a.png">
+2. Cek banyak sesi email
 <img src="resources/19b.png">
+3. Melihat siapa kirim ke siapa (filter command smtp)
 <img src="resources/19c.png">
+4. Follow TCP Stream
 <img src="resources/19d.png">
+5. Baca isi email 
 <img src="resources/19e.png">
 <img src="resources/19.png">
 
 #### 20. Untuk rencana pamungkasnya, Eiri menyembunyikan komunikasi malware di balik saluran terenkripsi TLS. Namun Alice telah menyediakan file keylog untuk mendekripsi lalu lintas data tersebut. Analisis file capture wired_tls_decrypt.pcapng bersama keyslogfile.txt untuk mengidentifikasi versi protokol TLS yang dinegosiasikan, nama domain (SNI) yang diakses, alamat IP server HTTPS penyerang, User-Agent yang digunakan, serta HTTP request method dan path yang tersembunyi di dalam sesi dekripsi. Validasi temuan kalian pada socket server: (link file) nc [IP_Group] 3407
 
+1. Load file keylog
+2. Cek keberhasilan deskripsi filekeylog
+3. Ambil versi TLS dari ClientHello & ServerHello
+4. Ambil domain yang diakses
+5. Ambil IP Server
+6. Ambil isi HTTP request yang tersembunyi(setelah deskripsi file keylog)
 <img src="resources/20a.png">
 <img src="resources/20b.png">
 
