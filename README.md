@@ -335,16 +335,28 @@ Berdasarkan statistik akhir pada terminal Knights, latensi jaringan dari 77 pake
 #### 11. Buktikan kelemahan protokol Telnet dengan membuat akun phantom_user dan password wired_ghost pada layanan telnetd di node Chisa. Lakukan login Telnet dari node Eiri ke node Chisa dan tangkap sesi menggunakan Wireshark. Tunjukkan kredensial plain text melalui fitur Follow TCP Stream, serta jelaskan mengapa setiap karakter terkirim dalam paket TCP terpisah.
 Di node Chisa:
 ```bash
-apt -o Acquire::ForceIPv4=true install -y telnetd
+# 1. Instal aplikasi telnet server dan inetd
+apt -o Acquire::ForceIPv4=true install -y telnetd openbsd-inetd
+
+# 2. Daftarkan telnet ke dalam manajer layanan inetd
+echo "telnet stream tcp nowait root /usr/sbin/telnetd" > /etc/inetd.conf
+
+# 3. Buat user dan password rahasia
 useradd -m -s /bin/bash phantom_user
 echo "phantom_user:wired_ghost" | chpasswd
+
+# 4. Nyalakan layanan
+/etc/init.d/openbsd-inetd restart
 ```
 
 Di node Eiri:
 ```bash
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-apt -o Acquire::ForceIPv4=true update && apt -o Acquire::ForceIPv4=true install -y telnet
-telnet 10.78.2.2 
+# 1. Update dan instal klien telnet
+apt -o Acquire::ForceIPv4=true update 
+apt -o Acquire::ForceIPv4=true install -y telnet
+
+# 2. Lakukan koneksi ke Chisa
+telnet 10.78.2.2
 ```
 Masuk dengan akun `phantom_user` dan sandi `wired_ghost`.
 
