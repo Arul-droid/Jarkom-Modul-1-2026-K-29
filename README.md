@@ -382,12 +382,18 @@ Pada tangkapan layar daftar paket Wireshark (kolom *Info*), terlihat banyak seka
 #### 12. Alice mencurigai Knights menjalankan beberapa layanan rahasia di node-nya. Lakukan pemindaian port dari node Alice ke node Knights menggunakan Netcat (nc) untuk memeriksa port 22 (SSH) dan 80 (HTTP) dalam keadaan terbuka, serta port rahasia 7777 dalam keadaan tertutup. Analisis di Wireshark perbedaan TCP Flag yang dikembalikan antara port terbuka (SYN-ACK) dengan port tertutup (RST-ACK).
 Di node Knights:
 ```bash
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+apt -o Acquire::ForceIPv4=true update
+apt -o Acquire::ForceIPv4=true install -y openssh-server apache2
 /etc/init.d/ssh start
 /etc/init.d/apache2 start
+ss -tuln | grep -E "22|80"
 ```
 
 Di node Alice:
 ```bash
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+apt -o Acquire::ForceIPv4=true update && apt -o Acquire::ForceIPv4=true install -y netcat-openbsd
 nc -zv 10.78.3.2 22 80 7777
 ```
 <img src="resources/soal12_nc.png">
