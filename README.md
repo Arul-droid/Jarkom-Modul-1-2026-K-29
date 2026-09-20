@@ -3,7 +3,9 @@
 
 Pembagian Tugas:
 soal 1 - 5: Muhamad Nasrulhaq & Ahmad Nayottama Juliansyah
+
 soal 6 - 13: Muhamad Nasrulhaq
+
 soal 14 - 20: Ahmad Nayottama Juliansyah
 ---
 ```
