@@ -2,11 +2,10 @@
 ### Ahmad Nayottama Juliansyah - 5027251045 <br> Muhammad Nasrulhaq - 5027251117
 
 Pembagian Tugas:
-soal 1 - 5: Muhamad Nasrulhaq & Ahmad Nayottama Juliansyah
+- soal 1 - 5: Muhamad Nasrulhaq & Ahmad Nayottama Juliansyah
+- soal 6 - 13: Muhamad Nasrulhaq
+- soal 14 - 20: Ahmad Nayottama Juliansyah
 
-soal 6 - 13: Muhamad Nasrulhaq
-
-soal 14 - 20: Ahmad Nayottama Juliansyah
 ---
 ```
 Batas antara Dunia Nyata dan The Wired perlahan mulai runtuh setelah kepergian Chisa Yomoda, yang meninggalkan pesan bahwa dirinya tetap hidup di dalam The Wired. Di balik kekacauan ini berdiri Masami Eiri, mantan perancang Protokol 7 di Laboratorium Tachibana, yang setelah kematian fisiknya berhasil mengunggah kesadarannya ke jaringan dan mendeklarasikan diri sebagai penguasa The Wired, didukung kelompok peretas Knights of the Eastern Calculus.
